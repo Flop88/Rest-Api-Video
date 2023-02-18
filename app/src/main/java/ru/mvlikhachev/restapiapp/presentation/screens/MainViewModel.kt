@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import ru.mvlikhachev.restapiapp.data.api.RemoteDataSource
 import ru.mvlikhachev.restapiapp.data.api.model.PostResponse
 import ru.mvlikhachev.restapiapp.domain.usecases.DeletePostUseCase
 import ru.mvlikhachev.restapiapp.domain.usecases.GetAllPostsUseCase
@@ -22,7 +23,8 @@ class MainViewModel @Inject constructor(
     private val getAllPostsUseCase: GetAllPostsUseCase,
     private val patchPostUseCase: PatchPostUseCase,
     private val postPostUseCase: PostPostUseCase,
-    private val putPostUseCase: PutPostUseCase
+    private val putPostUseCase: PutPostUseCase,
+    private val remoteDataSource: RemoteDataSource
 ): ViewModel() {
     private val _allPostsResponse = MutableLiveData<NetworkResult<List<PostResponse>>>()
     val allPostResponse: LiveData<NetworkResult<List<PostResponse>>>
@@ -31,6 +33,8 @@ class MainViewModel @Inject constructor(
     init {
         getAllPosts()
     }
+
+    fun getPagingPosts() = getAllPostsUseCase.invokePaging()
 
     private fun getAllPosts() {
         viewModelScope.launch {

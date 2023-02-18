@@ -1,9 +1,6 @@
 package ru.mvlikhachev.restapiapp.presentation.screens
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -18,23 +15,37 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.items
 import ru.mvlikhachev.restapiapp.data.api.model.PostResponse
 import ru.mvlikhachev.restapiapp.presentation.ui.theme.RestApiAppTheme
 import ru.mvlikhachev.restapiapp.utils.NetworkResult
+import java.util.Random
 
 @Composable
 fun MainScreen(mainViewModel: MainViewModel) {
-    val state = mainViewModel.allPostResponse.observeAsState().value ?: NetworkResult.Loading()
+//    val state = mainViewModel.allPostResponse.observeAsState().value ?: NetworkResult.Loading()
+    val pagingData = mainViewModel.getPagingPosts().collectAsLazyPagingItems()
 
-    when(state) {
-        is NetworkResult.Success -> {
-            SuccessScreen(state.data ?: listOf(), mainViewModel)
-        }
-        is NetworkResult.Error -> {
-            ErrorScreen(state.message?: "Oh, some error!")
-        }
-        is NetworkResult.Loading -> {
-            LoadingScreen()
+//    val state = pagingData.loadState.refresh
+    Column {
+
+        LazyColumn {
+            items(pagingData) { post ->
+                post?.let { PostItem(it) }
+            }
+            item {
+                when (val state = pagingData.loadState.refresh) {
+                    is LoadState.Error -> {
+                        ErrorScreen(message = state.error.message ?: "qw2eqweqe")
+                    }
+                    is LoadState.Loading -> { // Loading UI
+                        LoadingScreen()
+                    }
+                    else -> {}
+                }
+            }
         }
     }
 }
