@@ -18,25 +18,47 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.paging.LoadState
+import androidx.paging.PagingSource
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.items
 import ru.mvlikhachev.restapiapp.data.api.model.PostResponse
 import ru.mvlikhachev.restapiapp.presentation.ui.theme.RestApiAppTheme
 import ru.mvlikhachev.restapiapp.utils.NetworkResult
 
 @Composable
 fun MainScreen(mainViewModel: MainViewModel) {
-    val state = mainViewModel.allPostResponse.observeAsState().value ?: NetworkResult.Loading()
-
-    when(state) {
-        is NetworkResult.Success -> {
-            SuccessScreen(state.data ?: listOf(), mainViewModel)
+    val data = mainViewModel.getPagingAllPosts().collectAsLazyPagingItems()
+    
+    LazyColumn {
+        items(data) {post ->
+            post?.let { PostItem(item = it) }
         }
-        is NetworkResult.Error -> {
-            ErrorScreen(state.message?: "Oh, some error!")
-        }
-        is NetworkResult.Loading -> {
-            LoadingScreen()
+        item {
+            when (val state = data.loadState.refresh) {
+                is LoadState.Error -> {
+                    ErrorScreen(message = state.error.message ?:"Some Error")
+                }
+                is LoadState.Loading -> {
+                    LoadingScreen()
+                }
+                else -> {}
+            }
         }
     }
+//    val state = mainViewModel.allPostResponse.observeAsState().value ?: NetworkResult.Loading()
+//
+//    when(state) {
+//        is NetworkResult.Success -> {
+//            SuccessScreen(state.data ?: listOf(), mainViewModel)
+//        }
+//        is NetworkResult.Error -> {
+//            ErrorScreen(state.message?: "Oh, some error!")
+//        }
+//        is NetworkResult.Loading -> {
+//            LoadingScreen()
+//        }
+//    }
 }
 
 @Composable

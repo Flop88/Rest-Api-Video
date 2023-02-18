@@ -32,6 +32,8 @@ class MainViewModel @Inject constructor(
         getAllPosts()
     }
 
+    fun getPagingAllPosts() = getAllPostsUseCase.invokePaging()
+
     private fun getAllPosts() {
         viewModelScope.launch {
             getAllPostsUseCase.invoke().let {

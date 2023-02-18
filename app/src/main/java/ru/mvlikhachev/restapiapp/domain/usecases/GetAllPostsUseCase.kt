@@ -7,4 +7,6 @@ class GetAllPostsUseCase @Inject constructor(
     private val postRepository: PostRepository
 ) {
     suspend fun invoke() = postRepository.getAllPosts()
+
+    fun invokePaging() = postRepository.getPagingAllPost()
 }
